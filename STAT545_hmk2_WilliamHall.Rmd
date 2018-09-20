@@ -1,0 +1,173 @@
+---
+title: "STAT545_hmk2_WilliamHall"
+author: "William Hall"
+date: '2018-09-18'
+output: html_document
+---
+
+```{r setup, include=FALSE, echo = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r echo = FALSE, include = FALSE}
+#install.packages("gapminder")
+#install.packages("tidyverse")
+library(gapminder)
+install.packages(ggpubr)
+library(tidyverse)
+library(ggplot2)
+library(ggpubr)
+```
+
+## Smell Test the data
+
+>Is gapminder a data.frame, a matrix, a vector, a list? What is gapminder's class?
+
+```{r}
+str(gapminder)
+```
+
+Using str(), we can see that gapminder has multiple classes 'tbl_df', 'tbl', and 'data.frame'. I think this means that it is a tibble/data frame.
+
+
+>How many variables/columns does gapminder have? How many rows/observations does gapminder have?
+
+Gapminder has `r nrow(gapminder)` rows, and `r ncol(gapminder)` columns.
+
+
+>Can you get these facts about “extent” or “size” in more than one way? Can you imagine different functions being useful in different contexts?
+
+Yup. You could use anyone of the following functions to get information about the dataset.
+  - names()
+  - head()
+  - summary()
+  - str()
+  - nrow()
+  - ncol()
+
+>What data type is each variable?
+
+  - Country         is a `r class(gapminder$country)` variable.
+  - Continent       is a `r class(gapminder$continent)` variable.
+  - Year            is a `r class(gapminder$year)` variable.
+  - Life Expectancy is a `r class(gapminder$lifeExp)` variable.
+  - Population      is a `r class(gapminder$pop)` variable.
+  - GDP             is a `r class(gapminder$gdpPercap)` variable.
+
+## Life Expectancy Exploration
+
+  - What are possible values (or range, whichever is appropriate) of each variable?
+  - What values are typical? What’s the spread? What’s the distribution?
+  
+```{r}
+summary(gapminder$lifeExp)
+```
+
+  - The minimum value of Life Expectancy is  `r min(gapminder$lifeExp)`.
+  - The maximum value of Life Expectancy is  `r max(gapminder$lifeExp)`.
+  - The median  value. of Life Expectancy is `r median(gapminder$lifeExp)`.
+  - The mean value. of Life Expectancy is    `r mean(gapminder$lifeExp)`.
+  
+```{r}
+ggplot(data=gapminder, aes(x=gapminder$lifeExp)) +
+         geom_histogram(bins = 30, color = "black", fill = "gray") +
+         geom_vline(aes(xintercept = mean(gapminder$lifeExp)), 
+             linetype = "dashed", size = 0.6) +
+         xlab("Life Expectancy") + 
+         ylab("Count") + 
+         ggtitle("Life Expectancy Histogram")
+            
+```
+
+```{r}
+ggplot(data=gapminder, aes(x=gapminder$lifeExp)) +
+  geom_density() +
+  geom_vline(aes(xintercept = mean(gapminder$lifeExp)), 
+             linetype = "dashed", size = 0.6)
+  xlab("Life Expectancy") + 
+  ylab("Density") + 
+  ggtitle("Life Expectancy Density Plot")
+
+```
+
+## Continent Exploration
+
+The Contient variable in the Gapminder dataset is a `r class(gapminder$continent)` variable. It has the following levels `r levels(gapminder$continent)`.
+
+```{r}
+levels(gapminder$continent)
+```
+
+The following describes the frequency of each level.
+
+```{r}
+summary(gapminder$continent)
+```
+
+```{r}
+ggplot(gapminder, aes(continent)) +
+  geom_bar(fill = "#0073C2FF") +
+  ggtitle("Frequency of Continents in Gapminder Dataset")
+```
+
+##Explore Plotting
+
+> Scatterplot of two quantitative variables
+
+```{r}
+ggplot(gapminder, aes(x=gdpPercap, y=lifeExp)) +
+  geom_point() +
+  xlab("GDP Per Cap") + 
+  ylab("Life Expectancy") + 
+  ggtitle("Life Expectancy and GDP")
+
+```
+
+> Plot of one quantitative variable
+
+```{r}
+ggplot(data=gapminder, aes(x=gapminder$lifeExp)) +
+         geom_histogram(bins = 30, color = "black", fill = "gray") +
+         geom_vline(aes(xintercept = mean(gapminder$lifeExp)), 
+             linetype = "dashed", size = 0.6) +
+         xlab("Life Expectancy") + 
+         ylab("Count") + 
+         ggtitle("Life Expectancy Histogram")
+```
+
+> Plot of one quantitative and one categorical variable
+
+```{r}
+ggplot(gapminder, aes(continent, lifeExp)) +
+  geom_boxplot() +
+  xlab("Continent") + 
+  ylab("Life Expectancy") + 
+  ggtitle("Life Expectancy for Continents")
+```
+
+
+## Show me your PIPES
+
+> So what if we wanted to compare the mean GDP for countries in Africa with life expectancy.
+
+```{r}
+
+gapminder %>% 
+    filter(continent == "Africa") %>% 
+    group_by(country) %>% 
+    summarize(Mean.Life = mean(lifeExp), GDP = mean(gdpPercap))
+
+gapminder %>% 
+  filter(continent == "Africa") %>% 
+  ggplot(aes(lifeExp, gdpPercap)) +
+  geom_point(aes(col = country))
+
+          
+```
+
+
+##Reflection
+
+This assignment was fun. One thing I struggle with is the %>% pipe vs. the + for ggpplot. I figured it out eventually, but I definitely lost some hair trying to figure out what was wrong with my code. I can see how the tidyverse is super powerful, and why everyone loves it so much :)
+
+Can't wait to dig into some more of the advanced features!
