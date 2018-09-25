@@ -12,8 +12,8 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r echo = FALSE, include = FALSE}
 #install.packages("gapminder")
 #install.packages("tidyverse")
+#install.packages(ggpubr)
 library(gapminder)
-install.packages(ggpubr)
 library(tidyverse)
 library(ggplot2)
 library(ggpubr)
@@ -54,7 +54,7 @@ Yup. You could use anyone of the following functions to get information about th
   - Population      is a `r class(gapminder$pop)` variable.
   - GDP             is a `r class(gapminder$gdpPercap)` variable.
 
-## Life Expectancy Exploration
+## 'Life Expectancy' Continuous Variable Exploration
 
   - What are possible values (or range, whichever is appropriate) of each variable?
   - What values are typical? What’s the spread? What’s the distribution?
@@ -80,17 +80,17 @@ ggplot(data=gapminder, aes(x=gapminder$lifeExp)) +
 ```
 
 ```{r}
-ggplot(data=gapminder, aes(x=gapminder$lifeExp)) +
+ggplot(gapminder, aes(x=gapminder$lifeExp)) +
   geom_density() +
   geom_vline(aes(xintercept = mean(gapminder$lifeExp)), 
-             linetype = "dashed", size = 0.6)
+             linetype = "dashed", size = 0.6) +
   xlab("Life Expectancy") + 
   ylab("Density") + 
   ggtitle("Life Expectancy Density Plot")
 
 ```
 
-## Continent Exploration
+## 'Continent' Categorical Variable Exploration
 
 The Contient variable in the Gapminder dataset is a `r class(gapminder$continent)` variable. It has the following levels `r levels(gapminder$continent)`.
 
@@ -150,24 +150,47 @@ ggplot(gapminder, aes(continent, lifeExp)) +
 
 > So what if we wanted to compare the mean GDP for countries in Africa with life expectancy.
 
-```{r}
+This first set of code will create a new data set that will provide the mean life expectancy for each country in Africa as well as its GPD per capita.
 
+```{r}
 gapminder %>% 
     filter(continent == "Africa") %>% 
     group_by(country) %>% 
     summarize(Mean.Life = mean(lifeExp), GDP = mean(gdpPercap))
+```
 
+This second set of data will graph the same information using points.
+
+```{r}
 gapminder %>% 
   filter(continent == "Africa") %>% 
   ggplot(aes(lifeExp, gdpPercap)) +
   geom_point(aes(col = country))
-
-          
 ```
 
+##But I want to do more!
+
+> filter(gapminder, country == c("Rwanda", "Afghanistan"))
+
+So this person is a little mixed up. No sweat though. They are on the right track, but they are mixing up ggplot and ddplyr.
+
+I think what they want to do is look at all the variables in the data for only Rwanda and Afghanistan. The code below should do that.
+
+```{r}
+A.AData <- gapminder %>% 
+                filter(country == "Rwanda" | country == "Afghanistan") 
+```
 
 ##Reflection
-
 This assignment was fun. One thing I struggle with is the %>% pipe vs. the + for ggpplot. I figured it out eventually, but I definitely lost some hair trying to figure out what was wrong with my code. I can see how the tidyverse is super powerful, and why everyone loves it so much :)
 
+
+
 Can't wait to dig into some more of the advanced features!
+
+Some useful resources:
+
+* https://www.datacamp.com/courses/data-visualization-with-ggplot2-1
+* https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf
+  
+  
